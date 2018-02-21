@@ -3,22 +3,24 @@ from bs4 import BeautifulSoup
 import sys
 import time
 import os
-import pytest
 
 
-def JobScrapping(url):
+
+def job_scrapping(url):
 
     # Try to get the connection established to our specified URL something is wrong it throws out an error message
     # All test cases needed - HTTP CONNECTION TIMEOUT AND REQUEST ISSUES test cases
     try:
         resp = requests.get(url, timeout=3)
-        resp.raise_for_status()
+        print(resp.status_code)
+
     except requests.exceptions.HTTPError as err_http:
         print("Http Error:", err_http)
     except requests.exceptions.ConnectionError as err_connection:
         # reconnect=0
         # When error is there an error message is printed and prompts the user to retry connecting if the fixed issue
         # or exit the system
+        print(err_connection,"\n")
         print("Error collecting data from stack over flow due to internet issue or other URL issues")
         status = input("Do you want to retry connecting , YES or NO")
         if status == "yes":
@@ -30,12 +32,12 @@ def JobScrapping(url):
     except requests.exceptions.RequestException as error:
         print("OOps: Something Else", error)
 
-    ParsingData(resp)
+    parsing_data(resp)
 
 
-def ParsingData(resp):
+def parsing_data(website):
     # Get the content from the specified URL as XML format for me to parse
-    soup = BeautifulSoup(resp.content, features="xml")
+    soup = BeautifulSoup(website.content, features="xml")
 
     job_title = soup.findAll('item')
 
@@ -43,7 +45,9 @@ def ParsingData(resp):
     # on the screen
     while True:
         job_number = 0
-        LoadingScreen()
+        loading_screen()
+        f = open("results.txt", "w+")
+        empty_list = []
         for item in job_title:
 
             job_number = job_number + 1
@@ -52,7 +56,11 @@ def ParsingData(resp):
 
             title = item.title.text
 
-            head, sep, tail = title.partition('at')
+            head, sep, tail = title.partition('at ')
+
+            # Writes the data to the txt file results
+            f.write("Job Title:"+head+ "\n"+ "Posted by:"+ article_author+ "\n"+"Location:"+ item.location.text+
+                         "\n"+"Check job at :"+ item.link.text+ "\n"+ "Category :"+ item.category.text+ "\n"+str(job_number)+"\n")
 
             print("Job Title:", head, "\n", "Posted by:", article_author, "\n", "Location:", item.location.text, "\n",
                   "Check job at :", item.link.text, "\n", "Category :", item.category.text, "\n",job_number)
@@ -61,16 +69,18 @@ def ParsingData(resp):
 
         print("There are", (len(job_title)), "Jobs within 50 miles radius from Bridgewater \n")
 
-        analyzingdata(job_number)
+        analyzing_data(job_number, f, empty_list)
+
 
 # Check if there is no result due to error or no posting user can either quit or refresh the lis
 
 
-def analyzingdata(job_number):
-
+def analyzing_data(job_number, file, blank_list):
+            blank_list = list()
             if job_number == 0:
 
-                print("It look like there are no jobs in the Area")
+                print("It looks like there are no jobs in the Area")
+                return blank_list
 
             choice = input("To Refresh List press R or 0 to Quit: ")
 
@@ -80,11 +90,15 @@ def analyzingdata(job_number):
             elif choice == "0":
 
                 exit()
+                file.truncate()
 
 # setting up the url in main function since rss feed can be changed.
 
 
-def LoadingScreen():
+
+
+
+def loading_screen():
 
     toolbar_width = 45
 
@@ -109,11 +123,13 @@ def main():
     print("Press Enter To Continue . . .")
     input("")
 
-    JobScrapping("https://stackoverflow.com/jobs/feed?l=02324&u=Miles&d=50")
+    job_scrapping("https://stackoveflow.com/jobs/feed?l=02324&u=Miles&d=50")
+
 
 
 if __name__ == "__main__":
     main()
+
 
 
 
