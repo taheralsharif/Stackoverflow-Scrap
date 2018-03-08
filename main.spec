@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['C:\\Users\\Administrator\\OneDrive\\Documents\\University\\Spring 2018\\Senior design\\Project1'],
+             pathex=['C:\\Users\\Administrator\\OneDrive\\Documents\\University\\Spring 2018\\Senior design\\StackOverFlow Scrapping'],
              binaries=[],
              datas=[],
              hiddenimports=[],
