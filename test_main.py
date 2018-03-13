@@ -20,4 +20,7 @@ class Tests(unittest.TestCase):
 
     #  Test to check if there was not results from the correct URL
     def test_no_results(self):
-        self.failIf(main.analyzing_data(file=False, job_number=0, blank_list=False))
+        self.failIf(main.analyzing_data(file=False, job_number=0, blank_list=False,location=False, num_per_location=False))
+    # Test to check if the list contain data or not of list has no data the program will run
+    def test_cities_correct(self):
+        self.assertTrue(main.location_selector(cities=0,num_per_location=0)!="F")

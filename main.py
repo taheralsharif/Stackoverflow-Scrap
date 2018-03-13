@@ -50,42 +50,47 @@ def parsing_data(website):
         f = open("results.txt", "w+")
         empty_list = list()
         location = []
+        job_category = input("what jobs are you looking for ex.python?")
         for item in job_title:
+            selected_category = item.category.text
             selected_location = item.location.text
-            # user_location = selected_location[:selected_location.index(", ")]
             user_location = selected_location
+            if selected_category == job_category:
 
-            job_number = job_number + 1
+                job_number = job_number + 1
 
-            article_author = item.author.text
+                article_author = item.author.text
 
-            title = item.title.text
+                title = item.title.text
 
-            head, sep, tail = title.partition('at ')
+                head, sep, tail = title.partition('at ')
 
-            # Writes the data to the txt file results
-            f.write(
-                "Job Title:" + head + "\n" + "Posted by:" + article_author + "\n" + "Location:" + item.location.text +
-                "\n" + "Check job at :" + item.link.text + "\n" + "Category :" + item.category.text + "\n" + str(
-                    job_number) + "\n")
+                # Writes the data to the txt file results
+                f.write(
+                    "Job Title:" + head + "\n" + "Posted by:" + article_author + "\n" + "Location:" + item.location.text +
+                    "\n" + "Check job at :" + item.link.text + "\n" + "Category :" + item.category.text + "\n" + str(
+                        job_number) + "\n")
 
-            print("Job Title:", head, "\n", "Posted by:", article_author, "\n", "Location:", item.location.text, "\n",
-                  "Check job at :", item.link.text, "\n", "Category :", item.category.text, "\n", job_number)
-            print("_______________________________________________________________________________________________")
+                print("Job Title:", head, "\n", "Posted by:", article_author, "\n", "Location:", item.location.text,
+                      "\n",
+                      "Check job at :", item.link.text, "\n", "Category :", item.category.text, "\n", job_number)
+                print("_______________________________________________________________________________________________")
 
-            location.append(user_location)
+                location.append(user_location)
+        else:
+            print(job_category + " Jobs are not available in the surrounding areas , Please try another category","\n")
+            main()
 
-            no_duplicate_list = list(set(location))
-            # print(no_duplicate_list)
+        no_duplicate_list = list(set(location))
 
         num_per_location = Counter(location)
 
-        analyzing_data(job_number, f, empty_list, no_duplicate_list, num_per_location)
+        analyzing_data(job_number, f, empty_list, no_duplicate_list, num_per_location,job_category)
 
 
 # Check if there is no result due to error or no posting user can either quit or refresh the lis
 
-def analyzing_data(job_number, file, blank_list, location, num_per_location):
+def analyzing_data(job_number, file, blank_list, location, num_per_location,job_name):
     if job_number == 0:
         print("It looks like there are no jobs in the Area")
         return blank_list
@@ -93,7 +98,7 @@ def analyzing_data(job_number, file, blank_list, location, num_per_location):
     choice = input("If you want to see the map type -> map or -> 0 to Quit:,\n ")
 
     if choice == "map":
-        location_selector(location, num_per_location)
+        location_selector(location, num_per_location,job_name)
 
     elif choice == "0":
 
@@ -106,11 +111,11 @@ def analyzing_data(job_number, file, blank_list, location, num_per_location):
 
 
 
-def location_selector(cities, num_per_location):
+def location_selector(cities, num_per_location,job_name):
     cities_requested = []
     global item
 
-    print("Options where jobs are avaialbe to Choose from: ")
+    print("Cities where " + job_name + " jobs are avaialbe to Choose from: ")
 
     for i in cities:
         print(i)
@@ -130,13 +135,14 @@ def location_selector(cities, num_per_location):
 def map(cities_requested, num_per_location):
     # print(cities)
 
-    map = Basemap(llcrnrlon=-125, llcrnrlat=22, urcrnrlon=-64, urcrnrlat=49,
-                  projection='lcc', lat_1=32, lat_2=45, lon_0=-95)
+    map = Basemap(llcrnrlon=-73, llcrnrlat=40.9, urcrnrlon=-69.9, urcrnrlat=42.9,
+                  projection='lcc', lat_0=42, lon_0=-71, resolution='h')
 
     # load the shapefile, use the name 'states'
     map.readshapefile('st99_d00', name='states', drawbounds=True)
-    map.fillcontinents(color='grey', lake_color='aqua')
-    map.drawcoastlines()
+    map.fillcontinents(color='orange', lake_color='aqua')
+
+    map.bluemarble()
 
     # Get the location of each city and plot it
     geolocator = Nominatim()
@@ -144,7 +150,7 @@ def map(cities_requested, num_per_location):
         loc = geolocator.geocode(city)
         x, y = map(loc.longitude, loc.latitude)
         map.plot(x, y, marker="1", color='Red', markersize=20)
-        plt.text(x, y, city, fontsize=12, fontweight='normal',
+        plt.text(x, y, city, fontsize=8, fontweight='normal',
                  ha='left', va='center', color='k', bbox=dict(facecolor='b', alpha=0.1))
         plt.title(num_per_location, fontsize=8, color='Black')
 
@@ -178,6 +184,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
