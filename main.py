@@ -50,13 +50,12 @@ def parsing_data(website):
         f = open("results.txt", "w+")
         empty_list = list()
         location = []
-        job_category = input("what jobs are you looking for ex.python?")
+        job_category = input("what jobs are you looking for ex.python or java?")
         for item in job_title:
             selected_category = item.category.text
             selected_location = item.location.text
             user_location = selected_location
             if selected_category == job_category:
-
                 job_number = job_number + 1
 
                 article_author = item.author.text
@@ -77,59 +76,30 @@ def parsing_data(website):
                 print("_______________________________________________________________________________________________")
 
                 location.append(user_location)
-        else:
-            print(job_category + " Jobs are not available in the surrounding areas , Please try another category","\n")
-            main()
 
         no_duplicate_list = list(set(location))
 
         num_per_location = Counter(location)
 
-        analyzing_data(job_number, f, empty_list, no_duplicate_list, num_per_location,job_category)
+        analyzing_data(job_number, f, empty_list, no_duplicate_list, num_per_location, job_category)
 
 
 # Check if there is no result due to error or no posting user can either quit or refresh the lis
 
-def analyzing_data(job_number, file, blank_list, location, num_per_location,job_name):
+def analyzing_data(job_number, file, blank_list, location, num_per_location, job_name):
     if job_number == 0:
-        print("It looks like there are no jobs in the Area")
+        print("It looks like there are no" + str(job_name) + "jobs in the Area or error in typing category")
         return blank_list
 
-    choice = input("If you want to see the map type -> map or -> 0 to Quit:,\n ")
+    choice = input("If you want to see the map type -> map or -> 0 to Quit")
 
     if choice == "map":
-        location_selector(location, num_per_location,job_name)
+        map(location, num_per_location)
 
     elif choice == "0":
 
         exit()
         file.truncate()
-
-
-# setting up the url in main function since rss feed can be changed.
-
-
-
-
-def location_selector(cities, num_per_location,job_name):
-    cities_requested = []
-    global item
-
-    print("Cities where " + job_name + " jobs are avaialbe to Choose from: ")
-
-    for i in cities:
-        print(i)
-
-    i = 0
-    while 1:
-        i += 1
-        item = input(
-            'Enter all areas with State ex:(Boston,MA) you want to see on the map, thern press enter twice when done %d: ' % i)
-        if item == '':
-            break
-        cities_requested.append(item)
-        print(cities_requested)
-    map(cities_requested, num_per_location)
 
 
 def map(cities_requested, num_per_location):
@@ -150,9 +120,9 @@ def map(cities_requested, num_per_location):
         loc = geolocator.geocode(city)
         x, y = map(loc.longitude, loc.latitude)
         map.plot(x, y, marker="1", color='Red', markersize=20)
-        plt.text(x, y, city, fontsize=8, fontweight='normal',
+        plt.text(x, y, city, fontsize=10, fontweight='normal',
                  ha='left', va='center', color='k', bbox=dict(facecolor='b', alpha=0.1))
-        plt.title(num_per_location, fontsize=8, color='Black')
+        plt.title(num_per_location, fontsize=12, color='Black')
 
     plt.show()
     exit()
